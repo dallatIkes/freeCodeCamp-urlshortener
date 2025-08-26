@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-
-<html>
+<html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>URL Shortener Microservice | freeCodeCamp.org</title>
     <link
       rel="icon"
@@ -12,21 +13,78 @@
   </head>
 
   <body>
-    <h1>URL Shortener Microservice</h1>
-    <main>
-      <section>
-        <form action="api/shorturl" method="POST">
+    <div class="container">
+      <h1>URL Shortener Microservice</h1>
+
+      <section class="shorten-section">
+        <form id="shorten_form" action="/api/shorturl" method="POST">
           <fieldset>
-            <legend>URL Shortener</legend>
-            <label for="url_input">URL:</label>
-            <input id="url_input" type="text" name="url" placeholder="https://www.freecodecamp.org/" />
-            <input type="submit" value="POST URL" />
+            <legend>Shorten a URL</legend>
+            <input
+              id="url_input"
+              type="text"
+              name="url"
+              placeholder="https://www.example.com"
+              required
+            />
+            <button type="submit">Shorten URL</button>
           </fieldset>
         </form>
+        <pre id="shortened_result">The JSON response will appear here</pre>
       </section>
-    </main>
+
+      <section class="redirect-section">
+        <fieldset>
+          <legend>Go to Short URL</legend>
+          <input
+            id="short_input"
+            type="text"
+            placeholder="Enter short URL number"
+          />
+          <button id="redirect_btn" type="button">Go</button>
+        </fieldset>
+      </section>
+    </div>
+
     <footer>
       <p>By <a href="https://www.freecodecamp.org/">freeCodeCamp</a></p>
     </footer>
+
+    <script>
+      const form = document.getElementById("shorten_form");
+      const resultBlock = document.getElementById("shortened_result");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault(); // empêche le rechargement
+        const url = document.getElementById("url_input").value.trim();
+        if (!url) return alert("Please enter a URL.");
+
+        try {
+          // On récupère les données du formulaire classique
+          const formData = new FormData(form);
+          const searchParams = new URLSearchParams(formData);
+
+          const res = await fetch(form.action, {
+            method: "POST",
+            body: searchParams,
+          });
+
+          const data = await res.json();
+          resultBlock.textContent = JSON.stringify(data, null, 2);
+        } catch (err) {
+          resultBlock.textContent = "Error shortening URL.";
+          console.error(err);
+        }
+      });
+
+      const redirectBtn = document.getElementById("redirect_btn");
+      const shortInput = document.getElementById("short_input");
+
+      redirectBtn.addEventListener("click", () => {
+        const shortNum = shortInput.value.trim();
+        if (!shortNum) return alert("Please enter a short URL number.");
+        window.location.href = `/api/shorturl/${shortNum}`;
+      });
+    </script>
   </body>
 </html>
